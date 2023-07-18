@@ -111,8 +111,8 @@ for sec61_data in sale_61sec.iloc:
 
 new_stock['sale_61sec'] = stock_61sec
 new_stock['sale_61sec*2'] = stock_61sec * 2
-new_stock['stock'] = new_stock['item_counts'] - new_stock['sale_61sec']
-new_stock['stock(*2)'] = new_stock['item_counts'] - new_stock['sale_61sec*2']
+# new_stock['stock'] = new_stock['item_counts'] - new_stock['sale_61sec']
+# new_stock['stock(*2)'] = new_stock['item_counts'] - new_stock['sale_61sec*2']
 
 temp_order = round(new_stock['item_counts'] / new_stock['sale_61sec*2'], 2)
 new_stock['exp_3_weeks_stock'] = temp_order
@@ -120,4 +120,68 @@ order_now = np.zeros(shape=(len(new_stock),), dtype=int)
 order_now[np.where(temp_order>1.5)] = 1
 new_stock['order_now'] = order_now
 
-new_stock.to_excel(f'./{current_date}_stock_match.xlsx', index=False)
+del new_stock['wian']
+del new_stock['won']
+
+
+# new_stock.to_excel(f'./{current_date}_stock_match.xlsx', index=False, freeze_panes=(1, 0))
+def apply_column_format(df, file_path):
+    def get_width(test_str):
+        import string
+        import re
+        letter_to_width = {
+            'lower': 0.95,  ## 영어 소문자 하나당 칼럼 폭
+            'upper': 1.18,  ## 영어 대문자 하나당 칼럼 폭
+            'digit': 1,  ## 숫자 하나당 칼럼 폭
+            'korea': 1.85,  ## 한국어 한 글자당 칼럼 폭
+            'other': 0.95,  ## 나머지 한 문자당 칼럼 폭
+        }
+        width = 0
+        for c in test_str:
+            if c in string.ascii_lowercase:
+                width += letter_to_width['lower']
+            elif c in string.ascii_uppercase:
+                width += letter_to_width['upper']
+            elif c in string.digits:
+                width += letter_to_width['digit']
+            elif re.match(r'[ㄱ-힣]', c):
+                width += letter_to_width['korea']
+            else:
+                width += letter_to_width['other']
+
+        return width
+
+    def podong_get_width(test_str):
+        width = 0
+        if test_str == 'category':
+            width = 12.75
+        elif test_str == 'item_names':
+            width = 30.13
+        elif test_str == 'item_colors':
+            width = 48.75
+        elif test_str == 'item_counts':
+            width = 16
+        elif test_str == 'sale_61sec':
+            width = 14.25
+        elif test_str == 'sale_61sec*2':
+            width = 16.5
+        elif test_str == 'exp_3_weeks_stock':
+            width = 22.5
+        elif test_str == 'order_now':
+            width = 14.5
+
+        return width
+
+    with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+        ws = writer.sheets['Sheet1']
+
+        ## 칼럼 폭 조절
+        for i, col in enumerate(df.columns):
+            width = podong_get_width(col)
+            ws.set_column(i, i, width)  ## 여백을 위해 1 추가
+
+        ws.autofilter(0, 0, df.shape[0] - 1, df.shape[1] - 1)  ## 첫 행 필터 추가
+        ws.freeze_panes(1, 0)  ## 첫 행 고정
+
+apply_column_format(new_stock, f'./{current_date}_stock_match.xlsx')
