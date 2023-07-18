@@ -20,7 +20,7 @@ This code was developed to streamline and automate various tasks for the "61 Sec
 
 - **Data-Driven Decision Making**: With accurate predictions and insights, the code empowers the team to make informed decisions based on data, leading to more effective inventory management.
 
-- **Support My Girlfriend**: By using this automation tool, you not only improve productivity at work but also show your support to your girlfriend and her business venture, fostering a strong and supportive relationship.
+- **Support My Girlfriend**: By using this automation tool, not only do I improve productivity at work, but I also show my support to my girlfriend and her business venture, fostering a strong and supportive relationship.
 
 ### Getting Started
 
