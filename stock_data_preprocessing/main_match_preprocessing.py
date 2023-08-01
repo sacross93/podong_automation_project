@@ -73,8 +73,9 @@ stock_data = pd.read_excel(f'./{current_date}_podong_automation.xlsx')
 new_stock = stock_data.copy()
 stock_61sec = np.zeros(shape=(len(new_stock),), dtype=int)
 
+f = open("error.txt", "w+")
 for sec61_data in sale_61sec.iloc:
-    print(sec61_data['상품명'])
+    # print(sec61_data['상품명'])
     status = 0
     if sec61_data['상품명'] == 'No.500':
         continue
@@ -89,6 +90,16 @@ for sec61_data in sale_61sec.iloc:
             option_data = excetption_list['더블스퀘어링'][i]
             stock_idx = stock_data[(stock_data['item_names'] == option_data[0]) & (stock_data['item_colors'] == option_data[1])].index[0]
             stock_61sec[stock_idx] += sec61_data['판매수량']
+    if sec61_data['상품명'] == '사각 집게핀' and '스타일' in sec61_data['옵션']:
+        extra_option = sec61_data['옵션'].split('\n')
+        sec61_data['옵션'] = extra_option[1]
+        if 'L size' in extra_option[0]:
+            sec61_data['상품명'] = '사각 집게핀 (L size)'
+        else :
+            sec61_data['상품명'] = '사각 집게핀 (S size)'
+    if sec61_data['상품명'] == 'No.13' and '하프' in sec61_data['옵션']:
+        sec61_data['상품명'] = 'No.13 하프'
+        sec61_data['옵션'] = sec61_data['옵션'].replace('하프', '').replace('  ', ' ')
     if status == 1:
         continue
     if sec61_data['상품명'] in excetption_list.keys():
@@ -104,10 +115,12 @@ for sec61_data in sale_61sec.iloc:
     match_data = stock_data[(stock_data['item_names'] == sec61_data['상품명']) & (stock_data['item_colors'] == sec61_data['옵션'])]
     if len(match_data) == 0:
         print(sec61_data['상품명'], sec61_data['옵션'], "추가 안됨")
+        f.write(f"{sec61_data['상품명']} {sec61_data['옵션']} 추가 안됨 \n")
     else:
         # print(match_data)
         stock_idx = match_data.index[0]
         stock_61sec[stock_idx] += sec61_data['판매수량']
+f.close()
 
 new_stock['sale_61sec'] = stock_61sec
 new_stock['sale_61sec*2'] = stock_61sec * 2
@@ -179,9 +192,19 @@ def apply_column_format(df, file_path):
         ## 칼럼 폭 조절
         for i, col in enumerate(df.columns):
             width = podong_get_width(col)
-            ws.set_column(i, i, width)  ## 여백을 위해 1 추가
+            ws.set_column(i, i, width)
 
         ws.autofilter(0, 0, df.shape[0] - 1, df.shape[1] - 1)  ## 첫 행 필터 추가
         ws.freeze_panes(1, 0)  ## 첫 행 고정
 
 apply_column_format(new_stock, f'./{current_date}_stock_match.xlsx')
+
+
+
+
+
+
+
+
+
+
