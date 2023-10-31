@@ -59,6 +59,7 @@ for idx, data in enumerate(df.iloc):
             print("안맞음")
             break
 
+
 test = pd.DataFrame(append_list)
 test.to_excel(f'./{current_date}_podong_automation.xlsx', index=False)
 
@@ -135,6 +136,8 @@ new_stock['order_now'] = order_now
 
 del new_stock['wian']
 del new_stock['won']
+stock_idx = stock_data[(stock_data['item_names'] == sec61_data['상품명']) & (stock_data['item_colors'] == except_data)].index[0]
+
 
 
 # new_stock.to_excel(f'./{current_date}_stock_match.xlsx', index=False, freeze_panes=(1, 0))
@@ -198,13 +201,3 @@ def apply_column_format(df, file_path):
         ws.freeze_panes(1, 0)  ## 첫 행 고정
 
 apply_column_format(new_stock, f'./{current_date}_stock_match.xlsx')
-
-
-
-
-
-
-
-
-
-

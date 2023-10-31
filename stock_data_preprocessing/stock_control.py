@@ -61,3 +61,17 @@ for idx, data in enumerate(df.iloc):
 
 test = pd.DataFrame(append_list)
 test.to_excel(f'./{current_date}_podong_automation.xlsx', index=False)
+
+append_list.keys()
+
+len(append_list['category'])
+len(append_list['item_names'])
+len(append_list['item_colors'])
+len(append_list['wian'])
+len(append_list['won'])
+len(append_list['item_counts'])
+
+
+
+append_list['item_counts'][-1]
+append_list['item_names'][-1]
