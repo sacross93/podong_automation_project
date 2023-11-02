@@ -136,7 +136,7 @@ new_stock['order_now'] = order_now
 
 del new_stock['wian']
 del new_stock['won']
-stock_idx = stock_data[(stock_data['item_names'] == sec61_data['상품명']) & (stock_data['item_colors'] == except_data)].index[0]
+# stock_idx = stock_data[(stock_data['item_names'] == sec61_data['상품명']) & (stock_data['item_colors'] == except_data)].index[0]
 
 
 
