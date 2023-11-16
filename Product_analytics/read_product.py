@@ -24,7 +24,7 @@ sales_production = []
 sales_production.append(product_week['판매건수'][product_week['판매수량'] == product_week['판매수량'].max()])
 
 
-stat =
+stat = ""
 
 plt.figure(figsize=(12,8))
 plt.hist()
