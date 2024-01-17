@@ -67,9 +67,13 @@ test = pd.DataFrame(append_list)
 test.to_excel(f'./{current_date}_podong_automation.xlsx', index=False)
 
 import numpy as np
-import exception_list as ex
+# import exception_list as ex
+import json
 
-excetption_list = ex.get_exception_list()
+# excetption_list = ex.get_exception_list()
+file_path = "./exception_list.json"
+with open(file_path, 'r', encoding='UTF-8-sig') as file:
+    excetption_list = json.load(file)
 
 sale_61sec = pd.read_csv(f'./{current_date}_61sec.csv')
 stock_data = pd.read_excel(f'./{current_date}_podong_automation.xlsx')
@@ -118,8 +122,10 @@ for sec61_data in sale_61sec.iloc:
         continue
     match_data = stock_data[(stock_data['item_names'] == sec61_data['상품명']) & (stock_data['item_colors'] == sec61_data['옵션'])]
     if len(match_data) == 0:
+        # if sec61_data['상품명'] = 'No.297':
+        #     break
         print(sec61_data['상품명'], sec61_data['옵션'], "추가 안됨")
-        f.write(f"{sec61_data['상품명']} {sec61_data['옵션']} 추가 안됨 \n")
+        f.write(f"{sec61_data['상품명']} {sec61_data['옵션']} `추가 안됨` \n")
     else:
         # print(match_data)
         stock_idx = match_data.index[0]
