@@ -9,7 +9,6 @@ df.columns = df.iloc[2]
 df.drop([0, 1, 2], axis=0, inplace=True)
 df = df[pd.isna(df['품명']) == False]
 df = df.reset_index(drop=True)
-# df['품명'][df['품명'] != '재고량'] =  df['품명'][df['품명'] != '재고량'].str.replace('  ', ' ')
 
 
 new_column = []
@@ -21,11 +20,11 @@ for idx, key in enumerate(df.keys()):
     else:
         new_column.append(key)
 df.columns = new_column
-
+categories = len(new_column) - 7 + 1
 append_list = {'category': [], 'item_names': [], 'item_colors': [], 'wian': [], 'won': [], 'item_counts': []}
 status=0
 for idx, data in enumerate(df.iloc):
-    if data['품명'] == '중국이름':
+    if data['품명'] == '중국이름' or data['품명'] == 'package':
         continue
     if re.findall(r'^[0-9]\.[가-힝]+', data['품명']):
         temp_category = data['품명']
@@ -37,7 +36,7 @@ for idx, data in enumerate(df.iloc):
             break
         status = 1
         temp_item_name = data['품명']
-        for i in range(1, 13):
+        for i in range(1, categories):
             if pd.isna(data[f'temp_{i}']):
                 break
             append_list['item_colors'].append(data[f'temp_{i}'])
@@ -51,7 +50,7 @@ for idx, data in enumerate(df.iloc):
             print(status, "?")
             break
         status = 0
-        for i in range(1, 13):
+        for i in range(1, categories):
             if pd.isna(data[f'temp_{i}']):
                 break
             append_list['item_counts'].append(int(data[f"temp_{i}"]))
@@ -61,17 +60,3 @@ for idx, data in enumerate(df.iloc):
 
 test = pd.DataFrame(append_list)
 test.to_excel(f'./{current_date}_podong_automation.xlsx', index=False)
-
-append_list.keys()
-
-len(append_list['category'])
-len(append_list['item_names'])
-len(append_list['item_colors'])
-len(append_list['wian'])
-len(append_list['won'])
-len(append_list['item_counts'])
-
-
-
-append_list['item_counts'][-1]
-append_list['item_names'][-1]

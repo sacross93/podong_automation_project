@@ -1,0 +1,24 @@
+{
+  "app": {
+    "window_width": 1200,
+    "window_height": 800,
+    "theme_mode": "light",
+    "language": "ko"
+  },
+  "files": {
+    "default_output_dir": "./output",
+    "exception_list_path": "./config/exception_list.json",
+    "auto_backup": true,
+    "backup_count": 5
+  },
+  "processing": {
+    "auto_validate_files": true,
+    "show_progress": true,
+    "max_errors_display": 50
+  },
+  "logging": {
+    "level": "INFO",
+    "file_logging": true,
+    "log_file": "./logs/app.log"
+  }
+}
