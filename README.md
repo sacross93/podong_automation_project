@@ -1,32 +1,142 @@
-## 61 Seconds Homepage Automation
+# 포동 재고관리 자동화
 
-This code was developed to streamline and automate various tasks for the "61 Seconds" homepage. The primary objective is to simplify the process of managing inventory and sales data, ultimately aiding in making informed decisions about when to place product orders.
+61초 쇼핑몰의 재고 파일과 판매 데이터를 자동으로 매칭하여 주문 필요 품목을 분석하는 데스크탑 앱입니다.
 
-### Features
+---
 
-1. **Sales and Inventory Matching**: The code facilitates matching the sales data from the provided CAFE24 Excel file with the inventory data directly managed by the product manager. This process ensures accurate tracking of available inventory.
+## 주요 기능
 
-2. **Inventory Prediction**: Using historical data, the code predicts the expected inventory level for the next two weeks. This prediction assists in planning and maintaining optimal stock levels.
+- **재고 × 판매 자동 매칭** — 재고 Excel 파일과 61초 판매 CSV를 읽어 옵션 단위로 매칭
+- **3주치 예상 재고 계산** — 현재 재고 / (판매량 × 2) 기준으로 주문 필요 여부 자동 판단
+- **예외 처리 관리** — `exception_list.json` 기반으로 복잡한 옵션(묶음 판매, 다중 옵션 등)을 별도 매핑
+- **매칭 실패 이유 제공** — `[재고파일에 상품명 없음]` / `[옵션 불일치] 가능한 옵션: [...]` 형태로 구체적 원인 출력
+- **에러 로그 자동 저장** — 처리 후 `logs/error.txt` 에 전체 오류 목록 기록
+- **결과 파일 자동 저장** — `YYYYMMDD_stock_match.xlsx` / `.csv` 자동 생성
 
-3. **Order Placement Insights**: Based on the analyzed data, the code provides valuable insights into when it's best to place product orders. This helps avoid stockouts and ensures a smooth supply chain.
+---
 
-4. **Automated Reporting**: The automation tool generates customizable reports summarizing sales trends, inventory status, and order recommendations. This allows the team to monitor performance and make data-driven decisions efficiently.
+## 화면 구성
 
-### Why Use This Code?
+| 화면 | 설명 |
+|------|------|
+| **홈** | 파일 업로드 → 처리 시작 → 대시보드 결과 카드 + 에러 목록 |
+| **예외 관리** | exception_list.json 편집 (GUI 편집기 / RAW JSON / 외부 에디터) |
 
-- **Improve Inventory Management**: This code provides a reliable and efficient way to manage inventory and sales data, helping businesses like "61 Seconds" stay well-stocked and meet customer demands promptly.
+---
 
-- **Save Time and Effort**: Automating the inventory management process saves valuable time and reduces the need for manual data entry and calculations.
+## 설치 및 실행
 
-- **Data-Driven Decision Making**: With accurate predictions and insights, the code empowers the team to make informed decisions based on data, leading to more effective inventory management.
+### 요구사항
 
-- **Support My Girlfriend**: By using this automation tool, not only do I improve productivity at work, but I also show my support to my girlfriend and her business venture, fostering a strong and supportive relationship.
+- Python 3.8.1 이상
+- [uv](https://github.com/astral-sh/uv) 패키지 매니저
 
-### Getting Started
+### 의존성 설치
 
-To use this automation tool, follow the instructions below:
+```bash
+uv sync
+```
 
-1. Clone the repository to your local machine.
-2. Install the required dependencies (list them in the project's README if applicable).
-3. Configure the necessary settings (e.g., file paths, data formats) to match your specific use case.
-4. Run the code and enjoy the benefits of streamlined inventory management.
+### 앱 실행
+
+```bash
+uv run python main.py
+```
+
+---
+
+## 사용 방법
+
+1. **재고 파일 선택** — 재고 Excel 파일 (`.xlsx`) 을 클릭하여 선택
+2. **판매 데이터 선택** — 61초 판매 CSV (`.csv`) 또는 Excel 파일 선택
+3. **처리 시작** 버튼 클릭
+4. 처리 완료 후:
+   - 결과 요약 카드 (총 품목 / 주문 필요 / 판매 없음 / 오류) 확인
+   - 오류 목록에서 매칭 실패 항목과 이유 확인
+   - Excel / CSV 다운로드 또는 자동 저장 경로 확인
+   - `logs/error.txt` 에서 전체 오류 내용 확인
+
+### 파일 형식
+
+**재고 파일 (Excel)**
+- 3번째 행이 헤더 (`품명`, `위안`, `원화` 컬럼 필수)
+- 품명 행 → 옵션 색상 행 → 재고량 행 구조
+
+**판매 데이터 (CSV / Excel)**
+- `상품명`, `옵션`, `판매수량` 컬럼 필수
+
+---
+
+## 예외 처리 (exception_list.json)
+
+61초 판매 데이터의 옵션명이 재고 파일과 다른 경우 매핑 규칙을 등록합니다.
+
+```json
+{
+  "상품명": {
+    "판매 옵션 텍스트": ["재고 옵션1", "재고 옵션2"]
+  }
+}
+```
+
+앱 내 **예외 관리** 탭에서 GUI로 추가/수정하거나, RAW JSON 편집기를 통해 직접 수정할 수 있습니다.
+
+---
+
+## 프로젝트 구조
+
+```
+podong_automation_project/
+├── main.py                          # 앱 진입점
+├── exception_list.json              # 예외 처리 매핑 규칙
+├── pyproject.toml                   # 프로젝트 의존성 정의
+│
+├── src/
+│   ├── core/
+│   │   ├── data_processor.py        # 재고 × 판매 매칭 핵심 로직
+│   │   ├── file_manager.py          # Excel / CSV 읽기·쓰기
+│   │   └── exception_manager.py     # exception_list.json 관리
+│   ├── ui/
+│   │   ├── main_window.py           # 메인 윈도우 (NavigationRail 기반)
+│   │   └── components/
+│   │       ├── error_handler.py     # 에러 목록 UI (ExpansionTile)
+│   │       └── exception_editor.py  # 예외 처리 편집 다이얼로그
+│   └── config/
+│       └── settings.py              # 앱 설정
+│
+├── stock_data_preprocessing/
+│   ├── main_match_preprocessing.py  # 스크립트 단독 실행 버전
+│   └── stock_control.py
+│
+├── resources/                       # 폰트 등 정적 리소스
+├── tools/                           # 빌드 스크립트 (build_exe.ps1)
+└── logs/                            # 런타임 에러 로그 (gitignore 대상)
+```
+
+---
+
+## EXE 빌드
+
+```powershell
+uv run pyinstaller --onefile --windowed --name PodongApp `
+  --add-data "exception_list.json;." `
+  --add-data "src;src" `
+  --collect-all flet --collect-all flet_desktop `
+  --noconfirm main.py
+```
+
+빌드 결과물: `dist/PodongApp.exe`
+
+---
+
+## 출력 파일
+
+| 파일 | 설명 |
+|------|------|
+| `YYYYMMDD_stock_match.xlsx` | 포맷팅 적용된 결과 Excel |
+| `YYYYMMDD_stock_match.csv` | CP949 인코딩 결과 CSV |
+| `logs/error.txt` | 매칭 실패 항목 및 이유 전체 목록 |
+
+결과 컬럼: `category`, `item_names`, `item_colors`, `item_counts`, `sale_61sec`, `sale_61sec*2`, `exp_3_weeks_stock`, `order_now`
+
+`order_now` 값: `1` = 주문 필요, `0` = 충분, `-1` = 판매 데이터 없음
